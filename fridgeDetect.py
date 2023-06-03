@@ -6,7 +6,7 @@ https://github.com/dusty-nv/jetson-inference/blob/master/docs/detectnet-example-
 '''
 
 from jetson_inference import detectNet
-from jetsonUtils import videoSource, videoOutput
+from jetson_utils import videoSource, videoOutput
 
 # load objection detection model 
 net = detectNet("ssd-mobilenet-v2", threshold=0.5)
