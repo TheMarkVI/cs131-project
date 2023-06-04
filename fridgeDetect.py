@@ -15,10 +15,11 @@ from jetson_utils import videoSource, videoOutput
 #                 input_blob="input_0", output_cvg="scores", output_bbox="boxes", 
 #                 threshold=args.threshold)
 
+MODELPATH = "~chocogoats/jetson-inference/python/training/detection/ssd/models/fridge/ssd-mobilenet.onnx"
 
 # load objection detection model 
 # net = detectNet("ssd-mobilenet-v2", threshold=0.5) # Uses the default ssd-mobilenet-v2 model
-net = detectNet(model="model/fridge/ssd-mobilenet.onnx", labels="model/fridge/labels.txt", \
+net = detectNet(model=MODELPATH, labels="model/fridge/labels.txt", \
                 input_blob="input_0", output_cvg="scores", output_bbox="boxes", threshold=0.5)
                 # Uses retrained model with fridge objects
 camera = videoSource("/dev/video0")  # 'csi://0' for MIPI CSI camera
