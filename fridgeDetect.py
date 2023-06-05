@@ -89,10 +89,10 @@ while display.IsStreaming():
     #   add to the list of items found
     #   remove from the list of items needed
 
-    for id in detections:
-        if detection[id].ClassID == 0:
-            itemsFound.append(fridgeList[id])
-            itemsNeeded.remove(fridgeList[id])
+    # for id in detections:
+    #     if detection[id].ClassID == 0:
+    #         itemsFound.append(fridgeList[id])
+    #         itemsNeeded.remove(fridgeList[id])
 
     # print("Items needed: ", itemsNeeded)
     # print("Items found: ", itemsFound)
