@@ -31,8 +31,14 @@ PORT = 5679
 
 SYS_CAMERA = "/dev/video0"
 SYS_DISPLAY = "display://0"
-MODELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/ssd-mobilenet.onnx"
-LABELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/labels.txt"
+
+# Use these paths if the model is in the cs131-project folder
+MODELPATH = "./models/fruit/ssd-mobilenet.onnx"
+LABELPATH = "./models/fruit/labels.txt"
+
+# Use these paths if the model is in the jetson-inference ssd folder
+# MODELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/ssd-mobilenet.onnx"
+# LABELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/labels.txt"
 
 camera = videoSource(SYS_CAMERA)  # 'csi://0' for MIPI CSI camera
 display = videoOutput(SYS_DISPLAY) # 'my_video.mp4' for file
@@ -41,12 +47,13 @@ display = videoOutput(SYS_DISPLAY) # 'my_video.mp4' for file
 # net = detectNet("ssd-mobilenet-v2", threshold=0.5) # Uses the default ssd-mobilenet-v2 model
 net = detectNet(model=MODELPATH, labels=LABELPATH, \
                input_blob="input_0", output_cvg="scores", output_bbox="boxes", threshold=0.5)
-                		     # Uses retrained model with fridge objects
-				     # Might be able to move the model and label paths
+                             # Uses retrained model with fridge objects
+                             # Might be able to move the model and label paths
                                      # in the same directory. Just .onnx and .txt files
 
 itemsNeeded = [] # list of items needed
 itemsFound = [] # list of items found
+found_id = [] # list of ids of items found
 
 # Load labels from labels.txt file
 fridgeList = []
@@ -54,53 +61,55 @@ with open(LABELPATH, "r") as f:
     for line in f:
         fridgeList.append(line.strip())
 
-print("Labels:", fridgeList)
-
-# print(fridgeList) # verify: print labels from labels.txt file
+itemsNeeded = fridgeList # initially, all items are needed
+print("Labels (from fridgeList):", fridgeList)
+print("Items needed:", itemsNeeded)
 
 # driver code for object detection
 input("Press Enter to Continue... (Press Ctrl+C to exit)")
 
 while display.IsStreaming():
+    # clear lists
+    found_id = found_id.clear()
+    itemsNeeded = itemsNeeded.clear()
+    itemsFound = itemsFound.clear()
+
+    # Capture image from camera
     img = camera.Capture()
 
     if img is None:
-        # print("render image...")
-        #print("itemsNeeded:", itemsNeeded)
-        #print("itemsFound:", itemsFound)
         continue
 
     detections = net.Detect(img)
-    # print(detections)
 
     display.Render(img)
     display.SetStatus("Object Detection | Network {:.0f} FPS".format(net.GetNetworkFPS()))
 
-    # not sure if we need this...
-    print("detected {:d} objects in image".format(len(detections))) # print detections
 
+    # print detections in console 
+    print("detected {:d} objects in image".format(len(detections)))
+
+    # Find ID of detected objects and add to list
     for detection in detections:
+        found_id = found_id.append(detections[detection].ClassID)
+        itemsFound = itemsFound.append(fridgeList[found_id])
         print(detection) # print object name, confidence, bounding box coordinates
 
-    # To do:
-    # If object not detected in fridge:
-    #   add to the list of items needed
-    # If object detected in fridge:
-    #   add to the list of items found
-    #   remove from the list of items needed
+    for i in itemsNeeded:
+        for j in fridgeList:
+            itemsNeeded.append(fridgeList[j])
+        
+    for i in itemsNeeded:
+        for j in itemsFound:
+            if itemsFound[j] == itemsNeeded[i]:
+                itemsNeeded.remove(itemsNeeded[i])
 
-    # for id in detections:
-    #     if detection[id].ClassID == 0:
-    #         itemsFound.append(fridgeList[id])
-    #         itemsNeeded.remove(fridgeList[id])
-
-    # print("Items needed: ", itemsNeeded)
-    # print("Items found: ", itemsFound)
+    print("Items needed:", itemsNeeded)
 
     # To do: send itemsNeeded to a server
-    # via MQTT or something similar
+    # Basic client/server type connection
 
 # Print lists of items at the end of the program
 print("fridgeList:", fridgeList)
-print("itemsNeeded:", itemsNeeded)
 print("itemsFound:", itemsFound)
+print("itemsNeeded:", itemsNeeded)
