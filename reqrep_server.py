@@ -9,11 +9,7 @@ if len(sys.argv) > 1:
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-# socket.bind("tcp://themarkvi.asuscomm.com:5679")
-# socket.bind("tcp://127.0.0.1:%s" % port)
-# socket.bind("tcp://10.13.240.254:%s" % port)
 socket.bind("tcp://*:5679")
-# socket.bind("tcp://97.94.97.230:5679")
 print("Connected on port", port)
 
 while True:
@@ -30,18 +26,3 @@ while True:
         socket.send_string("World from %s" % port)
     except Exception as e:
         print(e)
-
-
-# import requests
-
-# try:
-#     x = requests.get("https://97.94.97.230", timeout=10)
-#     print(x.status_code)
-# except requests.exceptions.ConnectionError as e:
-#     raise ValueError("Firewall is blocking the connection")
-
-
-# have siraaj on ucr wifi
-# ip should be 10.13.240.1
-# bind? and connect to that ip
-# client connects and should be able to send messages like that
