@@ -91,9 +91,10 @@ while display.IsStreaming():
 
     # Find ID of detected objects and add to list
     for detection in detections:
+        print(detection) # print object name, confidence, bounding box coordinates
         found_id = found_id.append(detections[detection].ClassID)
         itemsFound = itemsFound.append(fridgeList[found_id])
-        print(detection) # print object name, confidence, bounding box coordinates
+
 
     for i in itemsNeeded:
         for j in fridgeList:
