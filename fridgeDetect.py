@@ -12,7 +12,7 @@ Sidenote:
     - (It even generated the above comment for me...)
 '''
 import numpy as np
-#import zmq
+import zmq
 import time
 import sys
 # import argparse # for parsing arguments from command line (if need be)
@@ -27,8 +27,18 @@ from jetson_utils import videoSource, videoOutput, Log
 #                 input_blob="input_0", output_cvg="scores", output_bbox="boxes", 
 #                 threshold=args.threshold)
 
-PORT = 5679
+# Set up Network Socket (server side))
+PORT = "5679"
+# if len(sys.argv) > 1:
+#     port =  sys.argv[1]
+#     int(port)
 
+# context = zmq.Context()
+# socket = context.socket(zmq.REP)
+# socket.bind("tcp://*:5679")
+# print("Connected on port", PORT)
+
+# Set up camera and display
 SYS_CAMERA = "/dev/video0"
 SYS_DISPLAY = "display://0"
 
@@ -66,7 +76,7 @@ print("Labels (from fridgeList):", fridgeList)
 print("Items needed:", itemsNeeded)
 
 # driver code for object detection
-input("Press Enter to Continue... (Press Ctrl+C to exit)")
+input("Ready to start camera. Press Enter to Continue...")
 
 while display.IsStreaming():
     # clear lists
@@ -105,6 +115,12 @@ while display.IsStreaming():
         for j in range(0, len(itemsFound), 1):
             if itemsFound[j] == itemsNeeded[i]:
                 itemsNeeded[i] = ''
+    
+    # Remove first item in itemsNeeded list (it's a title label)
+    itemsNeeded.pop(0)
+
+    # Remove empty strings from itemsNeeded list
+    itemsNeeded = list(filter(None, itemsNeeded))
 
     print("Items needed:", itemsNeeded)
     
