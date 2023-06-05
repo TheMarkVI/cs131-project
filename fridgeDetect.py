@@ -1,16 +1,24 @@
 # CS131 Project: Fridge object detection
 '''
+Author(s): CS131 Project Group 2
+
 Github inspiration: "Coding Your Own Object Detection Program"
 https://github.com/dusty-nv/jetson-inference/blob/master/docs/detectnet-example-2.md
 
+Also inspired from the detectnet.py program in jetson-inference/python/examples
+
+Sidenote:
+- GitHub CoPilot seemed to have come alive... (it's a bit scary)
+    - (It even generated the above comment for me...)
 '''
 import numpy as np
 #import zmq
 import time
 import sys
+# import argparse # for parsing arguments from command line (if need be)
 
 from jetson_inference import detectNet
-from jetson_utils import videoSource, videoOutput
+from jetson_utils import videoSource, videoOutput, Log
 
 # from detectnet.py example:
 # note: to hard-code the paths to load a model, the following API can be used:
@@ -21,27 +29,21 @@ from jetson_utils import videoSource, videoOutput
 
 PORT = 5679
 
+SYS_CAMERA = "/dev/video0"
+SYS_DISPLAY = "display://0"
 MODELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/ssd-mobilenet.onnx"
 LABELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/labels.txt"
 
+camera = videoSource(SYS_CAMERA)  # 'csi://0' for MIPI CSI camera
+display = videoOutput(SYS_DISPLAY) # 'my_video.mp4' for file
+
 # load objection detection model 
-net = detectNet("ssd-mobilenet-v2", threshold=0.5) # Uses the default ssd-mobilenet-v2 model
-# net = detectNet(model=MODELPATH, labels=LABELPATH, \
-#                input_blob="input_0", output_cvg="scores", output_bbox="boxes", threshold=0.5)
+# net = detectNet("ssd-mobilenet-v2", threshold=0.5) # Uses the default ssd-mobilenet-v2 model
+net = detectNet(model=MODELPATH, labels=LABELPATH, \
+               input_blob="input_0", output_cvg="scores", output_bbox="boxes", threshold=0.5)
                 		     # Uses retrained model with fridge objects
 				     # Might be able to move the model and label paths
                                      # in the same directory. Just .onnx and .txt files
-
-camera = videoSource("/dev/video0")  # 'csi://0' for MIPI CSI camera
-display = videoOutput("display://0") # 'my_video.mp4' for file
-
-# load list of objects in fridge; this should be the list of labels from the model
-# fridgeList = ['Apple','Artichoke','Bagel','Banana','Beer','Bell pepper','Bread','Broccoli',\
-#     'Cabbage','Cake','Candy','Cantaloupe','Carrot','Cheese','Coffee','Cookie','Croissant',\
-#         'Cucumber','Egg','Food','Fruit','Grape','Grapefruit','Guacamole','Juice','Lemon','Mango',\
-#             'Milk','Muffin','Mushroom','Orange','Pancake','Pasta','Peach','Pear','Pineapple','Pizza',\
-#                 'Pomegranate','Popcorn','Potato','Pumpkin','Salad','Seafood','Snack',\
-#                     'Submarine sandwich','Tomato','Turkey','Vegetable','Waffle','Watermelon','Wine','Zucchini']
 
 itemsNeeded = [] # list of items needed
 itemsFound = [] # list of items found
@@ -57,12 +59,12 @@ print("Labels:", fridgeList)
 # print(fridgeList) # verify: print labels from labels.txt file
 
 # driver code for object detection
-input("Press Enter to Continue...")
+input("Press Enter to Continue... (Press Ctrl+C to exit)")
 
 while display.IsStreaming():
     img = camera.Capture()
 
-    if img is not None:
+    if img is None:
         # print("render image...")
         #print("itemsNeeded:", itemsNeeded)
         #print("itemsFound:", itemsFound)
@@ -90,6 +92,7 @@ while display.IsStreaming():
     # To do: send itemsNeeded to a server
     # via MQTT or something similar
 
+# Print lists of items at the end of the program
 print("fridgeList:", fridgeList)
 print("itemsNeeded:", itemsNeeded)
 print("itemsFound:", itemsFound)
