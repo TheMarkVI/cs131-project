@@ -33,8 +33,8 @@ SYS_CAMERA = "/dev/video0"
 SYS_DISPLAY = "display://0"
 
 # Use these paths if the model is in the cs131-project folder
-MODELPATH = "./models/fruit/ssd-mobilenet.onnx"
-LABELPATH = "./models/fruit/labels.txt"
+MODELPATH = "./models/fridge/ssd-mobilenet.onnx"
+LABELPATH = "./models/fridge/labels.txt"
 
 # Use these paths if the model is in the jetson-inference ssd folder
 # MODELPATH = "../jetson-inference/python/training/detection/ssd/models/fruit/ssd-mobilenet.onnx"
@@ -50,17 +50,17 @@ net = detectNet(model=MODELPATH, labels=LABELPATH, \
                              # Uses retrained model with fridge objects
                              # Might be able to move the model and label paths
                                      # in the same directory. Just .onnx and .txt files
-
-itemsNeeded = [] # list of items needed
-itemsFound = [] # list of items found
-found_id = [] # list of ids of items found
-
 # Load labels from labels.txt file
 fridgeList = []
 with open(LABELPATH, "r") as f:
     for line in f:
         fridgeList.append(line.strip())
 
+itemsNeeded = [] # list of items needed
+itemsFound = [] # list of items found
+# found_id = [] # list of ids of items found
+
+        
 itemsNeeded = fridgeList # initially, all items are needed
 print("Labels (from fridgeList):", fridgeList)
 print("Items needed:", itemsNeeded)
@@ -70,9 +70,9 @@ input("Press Enter to Continue... (Press Ctrl+C to exit)")
 
 while display.IsStreaming():
     # clear lists
-    found_id = found_id.clear()
-    itemsNeeded = itemsNeeded.clear()
-    itemsFound = itemsFound.clear()
+    # found_id = found_id.clear()
+    itemsNeeded = []
+    itemsFound = []
 
     # Capture image from camera
     img = camera.Capture()
@@ -92,20 +92,23 @@ while display.IsStreaming():
     # Find ID of detected objects and add to list
     for detection in detections:
         print(detection) # print object name, confidence, bounding box coordinates
-        found_id = found_id.append(detections[detection].ClassID)
-        itemsFound = itemsFound.append(fridgeList[found_id])
+        # print(detection.ClassID)
+        found_id = detection.ClassID
+        itemsFound.append(fridgeList[found_id])
 
 
-    for i in itemsNeeded:
-        for j in fridgeList:
-            itemsNeeded.append(fridgeList[j])
+    # for i in itemsNeeded:
+    for i in range(0, len(fridgeList), 1):
+        itemsNeeded.append(fridgeList[i])
         
-    for i in itemsNeeded:
-        for j in itemsFound:
+    for i in range(0, len(itemsNeeded), 1):
+        for j in range(0, len(itemsFound), 1):
             if itemsFound[j] == itemsNeeded[i]:
-                itemsNeeded.remove(itemsNeeded[i])
+                itemsNeeded[i] = ''
 
     print("Items needed:", itemsNeeded)
+    
+    # Add a delay/sleep function???
 
     # To do: send itemsNeeded to a server
     # Basic client/server type connection
