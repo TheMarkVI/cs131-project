@@ -71,16 +71,16 @@ while display.IsStreaming():
         continue
 
     detections = net.Detect(img)
-    print(detections)
+    # print(detections)
 
     display.Render(img)
     display.SetStatus("Object Detection | Network {:.0f} FPS".format(net.GetNetworkFPS()))
 
     # not sure if we need this...
-    # print("detected {:d} objects in image".format(len(detections))) # print detections
+    print("detected {:d} objects in image".format(len(detections))) # print detections
 
-    # for detection in detections:
-    #    print(detection) # print object name, confidence, bounding box coordinates
+    for detection in detections:
+        print(detection) # print object name, confidence, bounding box coordinates
 
     # To do:
     # Implement a way to check if the object is in the fridge
