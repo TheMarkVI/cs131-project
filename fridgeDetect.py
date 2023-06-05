@@ -83,9 +83,17 @@ while display.IsStreaming():
         print(detection) # print object name, confidence, bounding box coordinates
 
     # To do:
-    # Implement a way to check if the object is in the fridge
-    # if it is not, then add it to the list of items needed
-    # if it is, then add it to the list of items found
+    # If object not detected in fridge:
+    #   add to the list of items needed
+    # If object detected in fridge:
+    #   add to the list of items found
+    #   remove from the list of items needed
+
+    for id in detections:
+        if detection[id].ClassID == 0:
+            itemsFound.append(fridgeList[id])
+            itemsNeeded.remove(fridgeList[id])
+
     # print("Items needed: ", itemsNeeded)
     # print("Items found: ", itemsFound)
 
