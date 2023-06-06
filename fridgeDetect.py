@@ -15,6 +15,7 @@ import numpy as np
 import zmq
 import time
 import sys
+import json
 # import argparse # for parsing arguments from command line (if need be)
 
 from jetson_inference import detectNet
@@ -73,9 +74,9 @@ context = zmq.Context()
 print("Connecting to server...")
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://169.235.86.206:2000")
-socket.send_string("Connected")
-message = socket.recv()
-print("Received reply %s [ %s ]" % (0, message))    
+#socket.send_string("Connected")
+#message = socket.recv()
+#print("Received reply %s [ %s ]" % (0, message))    
 
 # driver code for object detection
 input("Ready to start camera. Press Enter to Continue...")
@@ -130,11 +131,11 @@ while display.IsStreaming():
     # To do: send itemsNeeded to a server
     # Basic client/server type connection
     print("Send list of items needed...")
-    for request in itemsNeeded:
-        time.sleep(1)
-        print("Sending request %s ..." % request)
-        socket.send_string(itemsNeeded[request])
-    # get reply
+    # for request in itemsNeeded:
+        # print("Sending request %s ..." % request)
+        # socket.send_string(request)
+        # get reply
+    socket.send_json(json.dumps(itemsNeeded))
     message = socket.recv()
 
 # Print lists of items at the end of the program
