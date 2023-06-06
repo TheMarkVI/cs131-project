@@ -27,17 +27,6 @@ from jetson_utils import videoSource, videoOutput, Log
 #                 input_blob="input_0", output_cvg="scores", output_bbox="boxes", 
 #                 threshold=args.threshold)
 
-# Set up Network Socket (server side))
-PORT = "5679"
-# if len(sys.argv) > 1:
-#     port =  sys.argv[1]
-#     int(port)
-
-# context = zmq.Context()
-# socket = context.socket(zmq.REP)
-# socket.bind("tcp://*:5679")
-# print("Connected on port", PORT)
-
 # Set up camera and display
 SYS_CAMERA = "/dev/video0"
 SYS_DISPLAY = "display://0"
@@ -74,6 +63,17 @@ itemsFound = [] # list of items found
 itemsNeeded = fridgeList # initially, all items are needed
 print("Labels (from fridgeList):", fridgeList)
 print("Items needed:", itemsNeeded)
+
+# Set up Network Socket
+if len(sys.argv) > 2:
+    port =  sys.argv[2]
+    int(port)
+
+context = zmq.Context()
+print("Connecting to server...")
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://169.235.86.206:2000")
+socket.send_string("Connected")
 
 # driver code for object detection
 input("Ready to start camera. Press Enter to Continue...")
@@ -125,11 +125,18 @@ while display.IsStreaming():
     print("Items needed:", itemsNeeded)
     
     # Add a delay/sleep function???
-
     # To do: send itemsNeeded to a server
     # Basic client/server type connection
+    print("Send list of items needed...")
+    for request in range(0, len(itemsNeeded), 1):
+        time.sleep(1)
+        socket.send_string(itemsNeeded[request])
+
+    # get reply
+    # message = socket.recv()
 
 # Print lists of items at the end of the program
 print("fridgeList:", fridgeList)
 print("itemsFound:", itemsFound)
 print("itemsNeeded:", itemsNeeded)
+# socket.send_pyobj(itemsNeeded)
