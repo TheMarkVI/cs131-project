@@ -21,4 +21,4 @@ for request in range(5):
     message = socket.recv()
     print("\tReceived reply ", request, "[", message, "]")
 
-    socket.send_string("Bye")
+socket.send_string("Bye")
