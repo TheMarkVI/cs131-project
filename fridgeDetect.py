@@ -74,6 +74,8 @@ print("Connecting to server...")
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://169.235.86.206:2000")
 socket.send_string("Connected")
+message = socket.recv()
+print("Received reply %s [ %s ]" % (0, message))    
 
 # driver code for object detection
 input("Ready to start camera. Press Enter to Continue...")
@@ -128,12 +130,12 @@ while display.IsStreaming():
     # To do: send itemsNeeded to a server
     # Basic client/server type connection
     print("Send list of items needed...")
-    for request in range(0, len(itemsNeeded), 1):
+    for request in itemsNeeded:
         time.sleep(1)
+        print("Sending request %s ..." % request)
         socket.send_string(itemsNeeded[request])
-
     # get reply
-    # message = socket.recv()
+    message = socket.recv()
 
 # Print lists of items at the end of the program
 print("fridgeList:", fridgeList)
