@@ -11,7 +11,7 @@ context = zmq.Context()
 print("Connecting to server...")
 socket = context.socket(zmq.REQ)
 # socket.connect("tcp://97.94.97.230:5679")
-socket.connect("tcp://169.235.86.206:2000")
+socket.connect("tcp://10.13.156.72:2000")
 
 #  Do 5 requests, waiting each time for a response
 for request in range(5):
