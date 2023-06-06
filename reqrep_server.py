@@ -3,13 +3,10 @@ import time
 import sys
 
 port = "5679"
-if len(sys.argv) > 1:
-    port =  sys.argv[1]
-    int(port)
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5679")
+socket.bind("tcp://*:2000")
 print("Connected on port", port)
 
 while True:
